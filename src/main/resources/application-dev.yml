@@ -34,6 +34,10 @@ spring:
         jwt:
           issuer-uri: "http://localhost:9090/realms/supareel"
 application:
+  security:
+    jwt:
+      expiration: 8640000
+      secret-key: "TEST_SECRET_PHRASE"
   file:
     uploads:
       photos-output-path: ./uploads
