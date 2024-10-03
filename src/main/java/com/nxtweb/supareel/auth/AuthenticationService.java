@@ -1,18 +1,23 @@
 package com.nxtweb.supareel.auth;
 
 import com.nxtweb.supareel.email.EmailService;
+import com.nxtweb.supareel.email.EmailTemplateName;
+import com.nxtweb.supareel.errors.DatabaseOperationException;
+import com.nxtweb.supareel.errors.RoleNotFoundException;
+import com.nxtweb.supareel.errors.UserAlreadyExistsException;
 import com.nxtweb.supareel.role.RoleRepository;
 import com.nxtweb.supareel.user.Token;
 import com.nxtweb.supareel.user.TokenRepository;
 import com.nxtweb.supareel.user.User;
 import com.nxtweb.supareel.user.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,11 +31,20 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
 
+    @Value("${application.security.mailing.frontend.activation-url}")
+    private String activationUrl;
 
-    public void register(RegistrationRequest request) {
+
+    public void register(RegistrationRequest request) throws MessagingException {
         var userRole = roleRepository.findByName("USER")
                 // todo - better exception handling
-                .orElseThrow(() -> new IllegalStateException("ROLE USER was not initialized"));
+                .orElseThrow(() -> new RoleNotFoundException("ROLE USER was not initialized"));
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new UserAlreadyExistsException(
+                    String.format("User with email %s already exists", request.getEmail())
+            );
+        }
 
         var user = User.builder()
                 .firstName(request.getFirstName())
@@ -42,16 +56,29 @@ public class AuthenticationService {
                 .roles(List.of(userRole))
                 .build();
 
-        userRepository.save(user);
-        sendValidationEmail(user);
+        try {
+            userRepository.save(user);
+            sendValidationEmail(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseOperationException("Error while saving user: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new DatabaseOperationException("An unexpected error occurred while saving user: " + e.getMessage(), e);
+        }
 
     }
 
-    private void sendValidationEmail(User user) {
+    private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
 
         // send email
-
+        emailService.sendEmail(
+                user.getEmail(),
+                user.getFullName(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+                activationUrl,
+                newToken,
+                "Account Activation"
+        );
     }
 
     private String generateAndSaveActivationToken(User user) {
@@ -64,19 +91,26 @@ public class AuthenticationService {
                 .user(user)
                 .build();
 
-        tokenRepository.save(token);
+
+
+        try {
+            tokenRepository.save(token);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseOperationException("Error while saving activation token: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new DatabaseOperationException("An unexpected error occurred while saving user: " + e.getMessage(), e);
+        }
         return generatedToken;
     }
 
     private String generateActivationCode(int length) {
-        String charachter = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        String character = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         StringBuilder activationCode = new StringBuilder();
         SecureRandom secureRandom = new SecureRandom();
 
         for(int j = 0; j < length; j++) {
-            int randomIndex = secureRandom.nextInt(charachter.length());
-            activationCode.append(charachter.charAt(randomIndex));
-            return "";
+            int randomIndex = secureRandom.nextInt(character.length());
+            activationCode.append(character.charAt(randomIndex));
         }
         return activationCode.toString();
     }

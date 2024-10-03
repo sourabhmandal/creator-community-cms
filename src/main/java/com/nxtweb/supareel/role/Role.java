@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nxtweb.supareel.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,9 +19,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tabRole")
+@Table(name = "tab_role")
 @EntityListeners(AuditingEntityListener.class)
-
 public class Role {
     @Id
     @GeneratedValue
@@ -32,10 +33,23 @@ public class Role {
     @JsonIgnore
     private List<User> users;
 
-    @CreatedDate
-    @Column(updatable = false, nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    @LastModifiedDate
-    @Column(insertable = false, nullable = false)
+
+    @UpdateTimestamp
+    @Column(name = "last_modified_at", nullable = false)
     private LocalDateTime lastModifiedAt;
+
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        lastModifiedAt = createdAt;  // Initialize lastModifiedAt on entity creation
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastModifiedAt = LocalDateTime.now();
+    }
 }
