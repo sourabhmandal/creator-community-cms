@@ -20,7 +20,7 @@ public class Token {
     private String token;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime validatedAt;
+    private LocalDateTime expiresAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
