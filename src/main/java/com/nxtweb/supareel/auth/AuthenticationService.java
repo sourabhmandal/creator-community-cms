@@ -6,6 +6,7 @@ import com.nxtweb.supareel.errors.DatabaseOperationException;
 import com.nxtweb.supareel.errors.RoleNotFoundException;
 import com.nxtweb.supareel.errors.UserAlreadyExistsException;
 import com.nxtweb.supareel.role.RoleRepository;
+import com.nxtweb.supareel.security.JwtService;
 import com.nxtweb.supareel.user.Token;
 import com.nxtweb.supareel.user.TokenRepository;
 import com.nxtweb.supareel.user.User;
@@ -14,11 +15,15 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -30,6 +35,8 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Value("${application.security.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -59,13 +66,63 @@ public class AuthenticationService {
         try {
             userRepository.save(user);
             sendValidationEmail(user);
+        } catch (MessagingException e) {
+            throw new MessagingException("Error while sending email to user: " + e.getMessage(), e);
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseOperationException("Error while saving user: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new DatabaseOperationException("An unexpected error occurred while saving user: " + e.getMessage(), e);
+            throw new RuntimeException("An unexpected error occurred while saving user: " + e.getMessage(), e);
         }
 
     }
+
+    public AuthenticationResponse login(LoginRequest request) throws MessagingException {
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        User user = (User) auth.getPrincipal();
+        var claims = new HashMap<String, Object>();
+        claims.put("email", user.getEmail());
+        claims.put("fullName", user.getFullName());
+        claims.put("roles", user.getRoles());
+
+        var jwtToken = jwtService.generateUserToken(claims, user);
+        return AuthenticationResponse.builder().token(jwtToken).build();
+    }
+
+    public ActivateAccountResponse activateAccount(String token) throws MessagingException {
+        Token savedToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Token not found"));
+
+        if(LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
+            sendValidationEmail(savedToken.getUser());
+            throw new RuntimeException("Token expired: A new token sent to registered email");
+        }
+        var user = userRepository.findById(savedToken.getUser().getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+
+        try {
+            user.setEnabled(true);
+            userRepository.save(user);
+            savedToken.setValidatedAt(LocalDateTime.now());
+            tokenRepository.save(savedToken);
+            return ActivateAccountResponse.builder()
+                    .status("STATUS")
+                    .message("account activated successfully")
+                    .build();
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseOperationException("Error while updating user: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while updating user: " + e.getMessage(), e);
+        }
+    }
+
+
 
     private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
@@ -82,25 +139,31 @@ public class AuthenticationService {
     }
 
     private String generateAndSaveActivationToken(User user) {
-        // generate token
-        String generatedToken = generateActivationCode(6);
-        var token = Token.builder()
-                .token(generatedToken)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
-                .user(user)
-                .build();
-
-
-
         try {
+            // find old tokens
+            var tokens = tokenRepository.findAllActiveTokenByUserId(user.getId());
+            if (!tokens.isEmpty()) {
+                tokens.forEach(token -> token.setValidatedAt(LocalDateTime.now())); // Mark them as expired
+                tokenRepository.saveAll(tokens); // Save the updated tokens
+            }
+
+            // generate token
+            String generatedToken = generateActivationCode(6);
+            var token = Token.builder()
+                    .token(generatedToken)
+                    .createdAt(LocalDateTime.now())
+                    .expiresAt(LocalDateTime.now().plusMinutes(15))
+                    .user(user)
+                    .build();
+
             tokenRepository.save(token);
+
+            return generatedToken;
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseOperationException("Error while saving activation token: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new DatabaseOperationException("An unexpected error occurred while saving user: " + e.getMessage(), e);
         }
-        return generatedToken;
     }
 
     private String generateActivationCode(int length) {

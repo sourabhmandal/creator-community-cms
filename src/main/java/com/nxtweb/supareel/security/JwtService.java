@@ -24,7 +24,11 @@ public class JwtService {
     private String jwtSecret;
 
     public String generateUserToken(UserDetails userDetails) {
-        return generateUserToken(new HashMap<String, Objects>(), userDetails);
+        return generateUserToken(new HashMap<String, Object>(), userDetails);
+    }
+
+    public String generateUserToken(Map<String, Object> extraClaim, UserDetails userDetails) {
+        return buildToken(extraClaim, userDetails, jwtExpiration);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -39,10 +43,6 @@ public class JwtService {
     public <T> T extractClaims(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
-    }
-
-    private String generateUserToken(Map<String, Objects> extraClaim, UserDetails userDetails) {
-        return buildToken(extraClaim, userDetails, jwtExpiration);
     }
 
     private boolean isTokenExpired(String token) {
@@ -62,7 +62,7 @@ public class JwtService {
                 .getBody();
     }
 
-    private String buildToken(Map<String, Objects> extraClaims, UserDetails userDetails, long jwtExpiration) {
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long jwtExpiration) {
         var authorities = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority);

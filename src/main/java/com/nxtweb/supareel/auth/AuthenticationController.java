@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +28,27 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
+    public ResponseEntity<RegistrationResponse> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
         service.register(request);
-        return ResponseEntity.accepted().build();
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(RegistrationResponse
+                        .builder()
+                        .status("SUCCESS")
+                        .message(String.format("User with email %s registered successfully", request.getEmail()))
+                        .build()
+                );
+    }
+
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) throws MessagingException {
+        return ResponseEntity.ok(service.login(request));
+    }
+
+    @GetMapping("/activate-account")
+    public ResponseEntity<ActivateAccountResponse> authenticate(@RequestParam String token) throws MessagingException {
+        return ResponseEntity.ok(service.activateAccount(token));
     }
 
     // Handle any validation errors that occur during request body validation
@@ -110,6 +129,18 @@ public class AuthenticationController {
             }
         }
         return "Database error occurred. Please try again.";
+    }
+
+    // Handle database errors like unique constraint violations
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeExceptions(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                ErrorResponse
+                        .builder()
+                        .status("ERROR")
+                        .message(ex.getMessage())
+                        .build()
+        );
     }
 
     // Handle general exceptions
