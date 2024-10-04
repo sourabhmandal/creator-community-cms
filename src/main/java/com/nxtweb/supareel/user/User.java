@@ -2,15 +2,21 @@ package com.nxtweb.supareel.user;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.context.annotation.Primary;
+import com.nxtweb.supareel.role.Role;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.security.auth.Subject;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -18,7 +24,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tabUser")
+@Table(name = "tab_user")
 @EntityListeners(AuditingEntityListener.class)
 public class User implements UserDetails, Principal {
 
@@ -34,6 +40,17 @@ public class User implements UserDetails, Principal {
     private Boolean accountLocked;
     private Boolean enabled;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Role> roles;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "last_modified_at", nullable = false)
+    private LocalDateTime lastModifiedAt;
+
 
     @Override
     public String getName() {
@@ -42,7 +59,9 @@ public class User implements UserDetails, Principal {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return this.roles.stream()
+                .map(r -> new SimpleGrantedAuthority(r.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -57,17 +76,17 @@ public class User implements UserDetails, Principal {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return !accountLocked;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !accountLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return !accountLocked && enabled;
     }
 
     @Override
@@ -77,5 +96,9 @@ public class User implements UserDetails, Principal {
 
     public String getFullName() {
         return firstName + " " + lastName;
+    }
+
+    public boolean existsByEmail(String _email) {
+        return email.equals(_email);
     }
 }

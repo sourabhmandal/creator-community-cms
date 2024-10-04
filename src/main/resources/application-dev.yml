@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/supareel_dev_db
+    url: jdbc:postgresql://localhost:5435/supareel_dev_db
     username: username
     password: password
     driver-class-name: org.postgresql.Driver
@@ -16,8 +16,8 @@ spring:
   mail:
     host: localhost
     port: 1025
-    username: ali
-    password: ali
+    username: mandal
+    password: mandal
     properties:
       mail:
         smtp:
@@ -34,6 +34,13 @@ spring:
         jwt:
           issuer-uri: "http://localhost:9090/realms/supareel"
 application:
+  security:
+    jwt:
+      expiration: 8640000
+      secret-key: "KSRLnnbwxYnfc8YsEXpCkz2IHWCIVhw6ppkm34Szpewsh2OSmx2czDPVO1Pcqw1GtkDQnd942RfEj/qs"
+    mailing:
+      frontend:
+        activation-url: http://localhost:4200/activate-account
   file:
     uploads:
       photos-output-path: ./uploads
