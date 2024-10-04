@@ -75,7 +75,7 @@ public class AuthenticationService {
 
     }
 
-    public AuthenticationResponse login(LoginRequest request) throws MessagingException {
+    public AuthenticationResponse login(LoginRequest request) {
         var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
