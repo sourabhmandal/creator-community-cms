@@ -3,8 +3,6 @@ package com.nxtweb.supareel.auth;
 import com.nxtweb.supareel.email.EmailService;
 import com.nxtweb.supareel.email.EmailTemplateName;
 import com.nxtweb.supareel.errors.DatabaseOperationException;
-import com.nxtweb.supareel.errors.RoleNotFoundException;
-import com.nxtweb.supareel.errors.UserAlreadyExistsException;
 import com.nxtweb.supareel.role.RoleRepository;
 import com.nxtweb.supareel.security.JwtService;
 import com.nxtweb.supareel.user.Token;
@@ -12,14 +10,15 @@ import com.nxtweb.supareel.user.TokenRepository;
 import com.nxtweb.supareel.user.User;
 import com.nxtweb.supareel.user.UserRepository;
 import jakarta.mail.MessagingException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -45,10 +44,10 @@ public class AuthenticationService {
     public void register(RegistrationRequest request) throws MessagingException {
         var userRole = roleRepository.findByName("USER")
                 // todo - better exception handling
-                .orElseThrow(() -> new RoleNotFoundException("ROLE USER was not initialized"));
+                .orElseThrow(() -> new EntityNotFoundException("ROLE USER was not initialized"));
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserAlreadyExistsException(
+            throw new DuplicateKeyException(
                     String.format("User with email %s already exists", request.getEmail())
             );
         }
@@ -87,7 +86,7 @@ public class AuthenticationService {
         var claims = new HashMap<String, Object>();
         claims.put("email", user.getEmail());
         claims.put("fullName", user.getFullName());
-        claims.put("roles", user.getRoles());
+
 
         var jwtToken = jwtService.generateUserToken(claims, user);
         return AuthenticationResponse.builder().token(jwtToken).build();
@@ -141,9 +140,11 @@ public class AuthenticationService {
     private String generateAndSaveActivationToken(User user) {
         try {
             // find old tokens
-            var tokens = tokenRepository.findAllActiveTokenByUserId(user.getId());
+            var tokens = tokenRepository.findByUserIdAndExpiresAtAfterAndValidatedAtIsNull(user.getId(), LocalDateTime.now());
             if (!tokens.isEmpty()) {
-                tokens.forEach(token -> token.setValidatedAt(LocalDateTime.now())); // Mark them as expired
+                tokens.forEach(token -> {
+                    token.setExpiresAt(LocalDateTime.now());
+                }); // Mark them as expired
                 tokenRepository.saveAll(tokens); // Save the updated tokens
             }
 

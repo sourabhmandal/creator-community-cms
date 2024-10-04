@@ -37,7 +37,7 @@ application:
   security:
     jwt:
       expiration: 8640000
-      secret-key: "TEST_SECRET_PHRASE"
+      secret-key: "KSRLnnbwxYnfc8YsEXpCkz2IHWCIVhw6ppkm34Szpewsh2OSmx2czDPVO1Pcqw1GtkDQnd942RfEj/qs"
     mailing:
       frontend:
         activation-url: http://localhost:4200/activate-account

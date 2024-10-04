@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -65,7 +66,8 @@ public class JwtService {
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long jwtExpiration) {
         var authorities = userDetails.getAuthorities()
                 .stream()
-                .map(GrantedAuthority::getAuthority);
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
         return Jwts
                 .builder()
                 .setClaims(extraClaims)

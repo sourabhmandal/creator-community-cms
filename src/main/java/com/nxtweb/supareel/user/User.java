@@ -76,17 +76,17 @@ public class User implements UserDetails, Principal {
 
     @Override
     public boolean isAccountNonExpired() {
-        return enabled;
+        return !accountLocked;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return accountLocked;
+        return !accountLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return enabled;
+        return !accountLocked && enabled;
     }
 
     @Override
