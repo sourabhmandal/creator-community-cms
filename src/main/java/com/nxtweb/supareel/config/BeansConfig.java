@@ -3,6 +3,7 @@ package com.nxtweb.supareel.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Properties;
+import java.util.UUID;
 
 @Configuration
 @RequiredArgsConstructor
@@ -62,6 +64,10 @@ public class BeansConfig {
         return configuration.getAuthenticationManager();
     }
 
+    @Bean
+    public AuditorAware<UUID> auditorAware() {
+        return new ApplicationAuditAware();
+    }
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
