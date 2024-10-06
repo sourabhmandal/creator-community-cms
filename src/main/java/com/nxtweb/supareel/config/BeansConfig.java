@@ -62,20 +62,20 @@ public class BeansConfig {
         return configuration.getAuthenticationManager();
     }
 
-//    @Bean
-//    public JavaMailSender javaMailSender() {
-//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-//          mailSender.setHost("localhost");
-////        mailSender.setPort(587);
-////        mailSender.setUsername("your-email@gmail.com");
-////        mailSender.setPassword("your-email-password");
-////
-////        Properties props = mailSender.getJavaMailProperties();
-////        props.put("mail.transport.protocol", "smtp");
-////        props.put("mail.smtp.auth", "true");
-////        props.put("mail.smtp.starttls.enable", "true");
-////        props.put("mail.debug", "true");
+    @Bean
+    public JavaMailSender javaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+          mailSender.setHost("localhost");
+//        mailSender.setPort(587);
+//        mailSender.setUsername("your-email@gmail.com");
+//        mailSender.setPassword("your-email-password");
 //
-//        return mailSender;
-//    }
+//        Properties props = mailSender.getJavaMailProperties();
+//        props.put("mail.transport.protocol", "smtp");
+//        props.put("mail.smtp.auth", "true");
+//        props.put("mail.smtp.starttls.enable", "true");
+//        props.put("mail.debug", "true");
+
+        return mailSender;
+    }
 }

@@ -20,7 +20,7 @@ public class PaymentGateway {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID paymentGatewayId;
+    private UUID id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
