@@ -2,7 +2,6 @@ package com.nxtweb.supareel.auth;
 
 import com.nxtweb.supareel.email.EmailService;
 import com.nxtweb.supareel.email.EmailTemplateName;
-import com.nxtweb.supareel.errors.DatabaseOperationException;
 import com.nxtweb.supareel.role.RoleRepository;
 import com.nxtweb.supareel.security.JwtService;
 import com.nxtweb.supareel.user.Token;
@@ -68,7 +67,7 @@ public class AuthenticationService {
         } catch (MessagingException e) {
             throw new MessagingException("Error while sending email to user: " + e.getMessage(), e);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseOperationException("Error while saving user: " + e.getMessage(), e);
+            throw new RuntimeException("Error while saving user: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new RuntimeException("An unexpected error occurred while saving user: " + e.getMessage(), e);
         }
@@ -115,7 +114,7 @@ public class AuthenticationService {
                     .message("account activated successfully")
                     .build();
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseOperationException("Error while updating user: " + e.getMessage(), e);
+            throw new RuntimeException("Error while updating user: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new RuntimeException("An unexpected error occurred while updating user: " + e.getMessage(), e);
         }
@@ -161,9 +160,9 @@ public class AuthenticationService {
 
             return generatedToken;
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseOperationException("Error while saving activation token: " + e.getMessage(), e);
+            throw new RuntimeException("Error while saving activation token: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new DatabaseOperationException("An unexpected error occurred while saving user: " + e.getMessage(), e);
+            throw new RuntimeException("An unexpected error occurred while saving user: " + e.getMessage(), e);
         }
     }
 

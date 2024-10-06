@@ -95,17 +95,17 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(DatabaseOperationException.class)
-    public ResponseEntity<ExceptionResponse> handleDatabaseOperationException(DatabaseOperationException ex) {
-        return ResponseEntity.status(DATABASE_ERROR.getCode()).body(
-                ExceptionResponse
-                        .builder()
-                        .code(DATABASE_ERROR.getCode())
-                        .description(DATABASE_ERROR.getDescription())
-                        .error(ex.getMessage())
-                        .build()
-        );
-    }
+//    @ExceptionHandler(DatabaseOperationException.class)
+//    public ResponseEntity<ExceptionResponse> handleDatabaseOperationException(DatabaseOperationException ex) {
+//        return ResponseEntity.status(DATABASE_ERROR.getCode()).body(
+//                ExceptionResponse
+//                        .builder()
+//                        .code(DATABASE_ERROR.getCode())
+//                        .description(DATABASE_ERROR.getDescription())
+//                        .error(ex.getMessage())
+//                        .build()
+//        );
+//    }
 
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ExceptionResponse> handleDuplicateKeyException(DuplicateKeyException ex) {

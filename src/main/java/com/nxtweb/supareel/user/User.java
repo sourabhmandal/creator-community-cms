@@ -1,5 +1,7 @@
 package com.nxtweb.supareel.user;
 
+import com.nxtweb.supareel.order.Order;
+import com.nxtweb.supareel.product.Product;
 import jakarta.persistence.*;
 import lombok.*;
 import com.nxtweb.supareel.role.Role;
@@ -14,8 +16,7 @@ import javax.security.auth.Subject;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -29,8 +30,9 @@ import java.util.stream.Collectors;
 public class User implements UserDetails, Principal {
 
     @Id
-    @GeneratedValue
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
     private String firstName;
     private String lastName;
     private LocalDate dateOfBirth;
@@ -42,6 +44,12 @@ public class User implements UserDetails, Principal {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Order> orders;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

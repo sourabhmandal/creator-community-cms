@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import java.time.LocalDateTime;
 
 @SpringBootApplication
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @EnableAsync
 public class SupareelApplication {
     public static void main(String[] args) {
