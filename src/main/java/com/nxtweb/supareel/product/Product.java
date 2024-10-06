@@ -10,7 +10,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Currency;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,7 +35,7 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price;
 
-    private Currency type;
+    private Currency currency;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -56,4 +55,7 @@ public class Product {
     @Column(name = "last_modified_at", nullable = false)
     private LocalDateTime lastModifiedAt;
 
+    public enum Currency {
+        USD, EUR
+    }
 }

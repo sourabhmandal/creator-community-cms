@@ -46,7 +46,7 @@ public class Order {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_gateway_id")
-    private PaymentGateway paymentGateway;
+    private PaymentGateway paymentGatewayId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
