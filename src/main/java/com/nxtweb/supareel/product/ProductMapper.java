@@ -15,7 +15,9 @@ public class ProductMapper {
                 .description(createProductRequest.description())
                 .price(createProductRequest.price())
                 .currency(createProductRequest.currency())
-                .user(creator)
+                .owner(creator)
+                .createdBy(creator.getEmail())
+                .lastModifiedBy( creator.getEmail())
                 .build();
     }
 
@@ -34,7 +36,7 @@ public class ProductMapper {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .currency(product.getCurrency())
-                .user(product.getUser())
+                .user(product.getOwner())
                 .build();
     }
 

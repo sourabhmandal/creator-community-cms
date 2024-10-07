@@ -33,8 +33,8 @@ public class Product extends BaseEntity {
     private Currency currency;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Attachment> files;

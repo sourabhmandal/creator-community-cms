@@ -46,8 +46,8 @@ public class User implements UserDetails, Principal {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Product> products = new ArrayList<>();
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products;
 
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Order> orders;
