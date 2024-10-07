@@ -44,7 +44,16 @@ application:
       frontend:
         activation-url: http://localhost:4200/activate-account
   file:
-    uploads:
-      photos-output-path: ./uploads
+    bucket:
+      name: personal-project-dev
+cloud:
+  aws:
+    credentials:
+      access-key: "AWS_ACCESS_KEY"
+      secret-access-key: "AWS_SECRET_KEY"
+    region:
+      static: AWS_REGION
+    stack:
+      auto: false
 server:
   port: 8088

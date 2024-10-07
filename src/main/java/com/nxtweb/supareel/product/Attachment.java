@@ -1,25 +1,20 @@
 package com.nxtweb.supareel.product;
 
+import com.nxtweb.supareel.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "tab_attachment")
 @EntityListeners(AuditingEntityListener.class)
-public class Attachment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
-
+public class Attachment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
@@ -32,7 +27,4 @@ public class Attachment {
 
     @Column(nullable = false)
     private Long fileSize;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
 }

@@ -1,5 +1,6 @@
 package com.nxtweb.supareel.config;
 
+import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Properties;
 import java.util.UUID;
 
 @Configuration
@@ -26,6 +26,8 @@ public class BeansConfig {
 
     // Ensure CustomUserDetailsService is defined as a bean somewhere in your application
     private final UserDetailsService userDetailsService;
+    private final AmazonS3 amazonS3;
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -84,4 +86,5 @@ public class BeansConfig {
 
         return mailSender;
     }
+
 }

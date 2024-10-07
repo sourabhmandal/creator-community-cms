@@ -7,6 +7,8 @@ import lombok.*;
 import com.nxtweb.supareel.role.Role;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,33 +34,42 @@ public class User implements UserDetails, Principal {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-
     private String firstName;
     private String lastName;
     private LocalDate dateOfBirth;
     @Column(unique = true)
     private String email;
     private String password;
-    private Boolean accountLocked;
-    private Boolean enabled;
+    private boolean accountLocked;
+    private boolean enabled;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Product> products = new ArrayList<>();
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products;
 
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Order> orders;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdDate;
 
-    @UpdateTimestamp
-    @Column(name = "last_modified_at", nullable = false)
-    private LocalDateTime lastModifiedAt;
+    @LastModifiedDate
+    @Column(insertable = false)
+    private LocalDateTime lastModifiedDate;
 
+    @PrePersist
+    protected void onCreate() {
+        createdDate = LocalDateTime.now();
+        lastModifiedDate = createdDate;  // Initialize lastModifiedAt on entity creation
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastModifiedDate = LocalDateTime.now();
+    }
 
     @Override
     public String getName() {
