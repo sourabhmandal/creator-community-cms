@@ -20,7 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping(name = "products")
 @RequiredArgsConstructor
-@Tag(name = "Book")
+@Tag(name = "Product")
 public class ProductController {
     private final ProductService service;
 
