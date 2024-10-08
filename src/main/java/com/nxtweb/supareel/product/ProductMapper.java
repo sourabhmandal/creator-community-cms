@@ -3,21 +3,20 @@ package com.nxtweb.supareel.product;
 import com.nxtweb.supareel.product.dto.CreateProductRequest;
 import com.nxtweb.supareel.product.dto.CreateProductResponse;
 import com.nxtweb.supareel.product.dto.ProductByIdResponse;
-import com.nxtweb.supareel.user.User;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ProductMapper {
-    public Product toProduct(CreateProductRequest createProductRequest, User creator) {
+    public Product toProduct(CreateProductRequest createProductRequest, String creatorId) {
         return Product.builder()
                 .id(createProductRequest.id())
                 .title(createProductRequest.title())
                 .description(createProductRequest.description())
                 .price(createProductRequest.price())
                 .currency(createProductRequest.currency())
-                .owner(creator)
-                .createdBy(creator.getEmail())
-                .lastModifiedBy( creator.getEmail())
+                .owner(creatorId)
+                .createdBy(creatorId)
+                .lastModifiedBy(creatorId)
                 .build();
     }
 
@@ -36,8 +35,7 @@ public class ProductMapper {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .currency(product.getCurrency())
-                .user(product.getOwner())
+                .userId(product.getOwner())
                 .build();
     }
-
 }

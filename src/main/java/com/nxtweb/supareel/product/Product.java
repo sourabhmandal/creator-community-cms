@@ -2,7 +2,6 @@ package com.nxtweb.supareel.product;
 
 import com.nxtweb.supareel.common.BaseEntity;
 import com.nxtweb.supareel.order.Order;
-import com.nxtweb.supareel.user.User;
 import com.nxtweb.supareel.product.dto.Currency;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,9 +31,8 @@ public class Product extends BaseEntity {
 
     private Currency currency;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    @Column(name = "owner_id", nullable = false)
+    private String owner;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Attachment> files;

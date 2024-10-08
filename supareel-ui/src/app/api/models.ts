@@ -15,6 +15,5 @@ export { PaymentGateway } from './models/payment-gateway';
 export { Product } from './models/product';
 export { ProductByIdResponse } from './models/product-by-id-response';
 export { RegistrationRequest } from './models/registration-request';
-export { RegistrationResponse } from './models/registration-response';
 export { Role } from './models/role';
 export { User } from './models/user';

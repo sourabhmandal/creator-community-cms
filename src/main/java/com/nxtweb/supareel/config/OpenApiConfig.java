@@ -25,11 +25,11 @@ import io.swagger.v3.oas.annotations.servers.Server;
         servers = {
             @Server(
                 url = "http://localhost:8088/api/v1",
-                description = "LOCAL ENV: when your application in build and run locally"
+                description = "LOCAL ENV"
             ),
             @Server(
                 url = "https://backend.supareel.com/api/v1",
-                description = "LOCAL ENV: when your application in build and run locally"
+                description = "PRODUCTION ENV"
             ),
         },
         security = {

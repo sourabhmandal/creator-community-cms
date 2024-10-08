@@ -4,7 +4,6 @@ import com.nxtweb.supareel.common.PageResponse;
 import com.nxtweb.supareel.product.dto.CreateProductRequest;
 import com.nxtweb.supareel.product.dto.CreateProductResponse;
 import com.nxtweb.supareel.product.dto.ProductByIdResponse;
-import com.nxtweb.supareel.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,8 +25,7 @@ public class ProductService {
     private final ProductRepository repository;
 
     public CreateProductResponse create(CreateProductRequest productRequest, Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
-        Product product = productMapper.toProduct(productRequest, user);
+        Product product = productMapper.toProduct(productRequest, connectedUser.getName());
         Product savedProduct = repository.save(product);
         return productMapper.toCreateProductResponse(savedProduct);
     }
@@ -39,9 +37,8 @@ public class ProductService {
     }
 
     public PageResponse<ProductByIdResponse> findAllProducts(int page, int size, Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "lastModifiedDate"));
-        Page<Product> products = repository.findAllDisplayableProducts(pageable, user.getId());
+        Page<Product> products = repository.findAllDisplayableProducts(pageable, connectedUser.getName());
         List<ProductByIdResponse> productResponses = products.stream()
                 .map(productMapper::toProductByIdResponse)
                 .toList();
@@ -56,9 +53,8 @@ public class ProductService {
     }
 
     public PageResponse<ProductByIdResponse> findAllProductsByOwner(int page, int size, Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "lastModifiedDate"));
-        Page<Product> products = repository.findAll(withOwnerId(user.getId()), pageable);
+        Page<Product> products = repository.findAll(withOwnerId(connectedUser.getName()), pageable);
         List<ProductByIdResponse> productResponses = products.stream()
                 .map(productMapper::toProductByIdResponse)
                 .toList();

@@ -89,7 +89,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegistrationResponse"
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
@@ -387,15 +387,17 @@
           }
         }
       },
-      "RegistrationResponse": {
-        "required": [
-          "message",
-          "status"
-        ],
+      "MessageResponse": {
         "type": "object",
         "properties": {
           "status": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "SUCCESS",
+              "ERROR",
+              "INFO",
+              "WARNING"
+            ]
           },
           "message": {
             "type": "string"
@@ -777,6 +779,15 @@
             "type": "string",
             "format": "date-time"
           },
+          "name": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "credentialsNonExpired": {
+            "type": "boolean"
+          },
           "authorities": {
             "type": "array",
             "items": {
@@ -791,15 +802,6 @@
           },
           "accountNonLocked": {
             "type": "boolean"
-          },
-          "credentialsNonExpired": {
-            "type": "boolean"
-          },
-          "name": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
           }
         }
       },
@@ -845,23 +847,6 @@
         "properties": {
           "status": {
             "type": "string"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      },
-      "MessageResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "SUCCESS",
-              "ERROR",
-              "INFO",
-              "WARNING"
-            ]
           },
           "message": {
             "type": "string"
