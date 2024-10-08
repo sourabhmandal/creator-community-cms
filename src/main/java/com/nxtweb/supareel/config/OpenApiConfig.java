@@ -12,10 +12,12 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
         info = @Info(
+                title = "Supareel API docs",
+                version = "v1.0.0",
                 contact = @Contact(
                         name = "Sourabh Mandal",
                         email = "19mandal97@gmail.com",
-                        url = "https://bitsofmandal"
+                        url = "https://bitsofmandal.com"
                 ),
                 description = "API documentation of supareel platform",
                 license = @License(name = "MIT")

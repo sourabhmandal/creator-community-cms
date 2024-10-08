@@ -1,6 +1,7 @@
 package com.nxtweb.supareel.product;
 
 import com.nxtweb.supareel.common.MessageResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -22,6 +23,7 @@ public class AttachmentController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(
+            @Parameter()
             @RequestParam(value = "file") MultipartFile file) {
         return new ResponseEntity<>(service.uploadFile(file), HttpStatus.ACCEPTED);
     }
