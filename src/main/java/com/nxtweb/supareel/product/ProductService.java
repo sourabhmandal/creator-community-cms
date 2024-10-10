@@ -18,54 +18,13 @@ import java.util.UUID;
 
 import static com.nxtweb.supareel.product.ProductSpecification.withOwnerId;
 
-@Service
-@RequiredArgsConstructor
-public class ProductService {
-    private final ProductMapper productMapper;
-    private final ProductRepository repository;
+public interface ProductService {
 
-    public CreateProductResponse create(CreateProductRequest productRequest, Authentication connectedUser) {
-        Product product = productMapper.toProduct(productRequest, connectedUser.getName());
-        Product savedProduct = repository.save(product);
-        return productMapper.toCreateProductResponse(savedProduct);
-    }
+    CreateProductResponse create(CreateProductRequest productRequest, Authentication connectedUser);
 
-    public ProductByIdResponse findById(UUID id) {
-        return repository.findById(id)
-                .map(productMapper::toProductByIdResponse)
-                .orElseThrow(() -> new EntityNotFoundException("No book found with the ID:: " + id.toString()));
-    }
+    ProductByIdResponse findById(UUID id);
 
-    public PageResponse<ProductByIdResponse> findAllProducts(int page, int size, Authentication connectedUser) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "lastModifiedDate"));
-        Page<Product> products = repository.findAllDisplayableProducts(pageable, connectedUser.getName());
-        List<ProductByIdResponse> productResponses = products.stream()
-                .map(productMapper::toProductByIdResponse)
-                .toList();
-        return new PageResponse<>(
-                productResponses,
-                products.getNumber(),
-                products.getSize(),
-                products.getTotalElements(),
-                products.getTotalPages(),
-                products.isFirst(),
-                products.isLast());
-    }
+    PageResponse<ProductByIdResponse> findAllProducts(int page, int size, Authentication connectedUser);
 
-    public PageResponse<ProductByIdResponse> findAllProductsByOwner(int page, int size, Authentication connectedUser) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "lastModifiedDate"));
-        Page<Product> products = repository.findAll(withOwnerId(connectedUser.getName()), pageable);
-        List<ProductByIdResponse> productResponses = products.stream()
-                .map(productMapper::toProductByIdResponse)
-                .toList();
-
-        return new PageResponse<>(
-                productResponses,
-                products.getNumber(),
-                products.getSize(),
-                products.getTotalElements(),
-                products.getTotalPages(),
-                products.isFirst(),
-                products.isLast());
-    }
+    PageResponse<ProductByIdResponse> findAllProductsByOwner(int page, int size, Authentication connectedUser);
 }
