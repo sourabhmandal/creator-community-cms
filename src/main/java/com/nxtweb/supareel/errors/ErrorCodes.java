@@ -22,6 +22,7 @@ public enum ErrorCodes {
     DATABASE_QUERY_TIMEOUT(311, REQUEST_TIMEOUT, "The database query took too long to execute and timed out. Please try again"),
     DATABASE_FOREIGN_KEY_ERROR(312, CONFLICT, "The operation violates a foreign key constraint. Please ensure the related entity exists"),
     DATABASE_MISSING_FIELD_ERROR(313, BAD_REQUEST, "A required field is missing. Please ensure all required fields are filled"),
+    AUTHORIZATION_ERROR(314, FORBIDDEN, "User not allowed to access this resource"),
     ;
 
 

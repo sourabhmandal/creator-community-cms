@@ -1,6 +1,7 @@
 package com.nxtweb.supareel.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -17,6 +18,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BeansConfig {
 
+    @Value("${client.base-url}")
+    private String clientBaseUrl;
+
     @Bean
     public AuditorAware<String> auditorAware() {
         return new ApplicationAuditAware();
@@ -26,7 +30,7 @@ public class BeansConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        config.setAllowedOrigins(Collections.singletonList(clientBaseUrl));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.ORIGIN,
                 HttpHeaders.CONTENT_TYPE,
