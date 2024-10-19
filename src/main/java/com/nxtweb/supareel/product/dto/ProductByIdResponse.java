@@ -2,8 +2,6 @@ package com.nxtweb.supareel.product.dto;
 
 import com.nxtweb.supareel.order.Order;
 import com.nxtweb.supareel.product.Attachment;
-import com.nxtweb.supareel.user.User;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -21,7 +19,7 @@ public class ProductByIdResponse {
         private String description;
         private BigDecimal price;
         private Currency currency;
-        private User user;
+        private String userId;
         private Set<Attachment> files;
         private Set<Order> orders;
 }

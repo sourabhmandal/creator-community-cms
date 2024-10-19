@@ -15,34 +15,13 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  mail:
-    host: localhost
-    port: 1025
-    username: mandal
-    password: mandal
-    properties:
-      mail:
-        smtp:
-          trust: "*"
-        auth: true
-        starttls:
-          enabled: true
-        connectiontimeout: 5000
-        timeout: 3000
-        writetimeout: 5000
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: "http://localhost:9090/realms/supareel"
+          jwk-set-uri: "${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs"
 application:
-  security:
-    jwt:
-      expiration: 8640000
-      secret-key: "KSRLnnbwxYnfc8YsEXpCkz2IHWCIVhw6ppkm34Szpewsh2OSmx2czDPVO1Pcqw1GtkDQnd942RfEj/qs"
-    mailing:
-      frontend:
-        activation-url: http://localhost:4200/activate-account
   file:
     bucket:
       name: personal-project-dev
@@ -57,3 +36,5 @@ cloud:
       auto: false
 server:
   port: 8088
+client:
+  base-url: "http://localhost:3000"

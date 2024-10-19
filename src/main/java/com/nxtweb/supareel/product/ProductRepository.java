@@ -14,6 +14,5 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
     FROM Product product
     WHERE product.createdBy != :userId
     """)
-    Page<Product> findAllDisplayableProducts(Pageable pageable, UUID userId);
-
+    Page<Product> findAllDisplayableProducts(Pageable pageable, String userId);
 }

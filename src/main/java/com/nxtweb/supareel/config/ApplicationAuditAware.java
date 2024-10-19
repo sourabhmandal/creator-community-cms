@@ -1,7 +1,8 @@
 package com.nxtweb.supareel.config;
 
-import com.nxtweb.supareel.user.User;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.lang.NonNullApi;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,15 +10,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ApplicationAuditAware implements AuditorAware<UUID> {
+public class ApplicationAuditAware implements AuditorAware<String> {
     @Override
-    public Optional<UUID> getCurrentAuditor() {
+    public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null || !authentication.isAuthenticated() ||
                 authentication instanceof AnonymousAuthenticationToken) {
             return Optional.empty();
         }
-        User user = (User) authentication.getPrincipal();
-        return Optional.ofNullable(user.getId());
+        return Optional.ofNullable(authentication.getName());
     }
 }

@@ -2,7 +2,6 @@ package com.nxtweb.supareel.order;
 
 import com.nxtweb.supareel.payment.PaymentGateway;
 import com.nxtweb.supareel.product.Product;
-import com.nxtweb.supareel.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,9 +29,8 @@ public class Order {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", nullable = false)
-    private User buyer;
+    @Column(name = "buyer_id", nullable = false)
+    private String buyer;
 
     @Column(nullable = false)
     private Integer quantity;
